@@ -1,0 +1,10 @@
+-r requirements.txt
+pytest>=8,<10
+httpx>=0.27,<1.0
+
+# Needed only to run hexa_tpu_rt_sim's full test suite (specifically
+# TestExport::test_export_timeline_png_creates_nonempty_file). The
+# application itself, and hexa_tpu_rt_sim's core features, do not require
+# matplotlib — this is a genuinely optional PNG-export convenience with an
+# ASCII/SVG fallback that doesn't need it (see hexa_tpu_rt_sim/export.py).
+matplotlib>=3.8,<4.0

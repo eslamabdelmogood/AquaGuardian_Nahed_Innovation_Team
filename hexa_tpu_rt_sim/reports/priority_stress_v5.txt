@@ -1,0 +1,43 @@
+==============================================================================
+Priority/EDF Scheduling Stress Test (Phase 6)
+==============================================================================
+
+--- Finding #1: does policy matter AT ALL on the normal workload? ---
+  fifo       completed=  99  misses=  9  cycles=600116
+  priority   completed=  99  misses=  9  cycles=600116
+  edf        completed=  99  misses=  9  cycles=600116
+  -> Bit-for-bit IDENTICAL across all three policies. Not a coincidence:
+     Master only ever enqueues one layer at a time, and every task within
+     that layer shares the SAME priority value -- so priority/edf selection
+     always ties and falls back to arrival order, same as fifo. The policy
+     code works; the architecture never gives it a genuine choice to make.
+
+--- Finding #2: with genuine per-task priority heterogeneity (2 critical heads/layer) ---
+Policy     | Lookahead | TotalMiss |  Critical miss rate | Non-critical miss rate
+---------------------------------------------------------------------------------
+fifo       |     False |         9 |          4/4 (100%) |             5/104 (5%)
+fifo       |      True |         0 |            0/4 (0%) |             0/104 (0%)
+priority   |     False |         9 |          4/4 (100%) |             5/104 (5%)
+priority   |      True |         0 |            0/4 (0%) |             0/104 (0%)
+edf        |     False |         9 |          4/4 (100%) |             5/104 (5%)
+edf        |      True |         0 |            0/4 (0%) |             0/104 (0%)
+---------------------------------------------------------------------------------
+
+VERDICT:
+Priority-first dispatch does NOT protect critical tasks here -- critical and
+non-critical miss rates are statistically similar under 'priority'/'edf', and in
+this run critical tasks actually miss MORE than non-critical ones (100% vs ~5%).
+Why: being dispatched FIRST means the memory-aware estimate (Phase 2) sees the
+LEAST contention, since fewer other workers have started yet -- so priority-first
+dispatch gives critical tasks the MOST OPTIMISTIC (least accurate) deadline, not
+the most protected one. This is a real, counterintuitive interaction: reordering
+WHO goes first doesn't help if the deadline ESTIMATE used at that moment is wrong.
+
+What actually fixes it: Phase 7's lookahead, which eliminates misses for BOTH
+critical and non-critical tasks regardless of scheduling policy. For this
+failure mode, estimate accuracy matters far more than dispatch order.
+
+Known gap this doesn't test: deadlines are relative to a task's own dispatch
+time, not to when the underlying request first arrived. A real hard-RT system
+under sustained overload needs 'this frame's absolute deadline has already
+passed, drop it before even starting' -- not modeled here. Flagged as future work.

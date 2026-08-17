@@ -1,0 +1,38 @@
+==============================================================================
+Power Analysis (Phase 3) -- checking the spec's two power claims
+==============================================================================
+
+--- Check 1: sparsity needed for the claimed 'up to 40% power cut' ---
+ Sparsity |  MAC Power Cut |  Hits 40%?
+---------------------------------------
+      10% |           9.5% |         no
+      20% |          19.0% |         no
+      30% |          28.5% |         no
+      40% |          38.0% |         no
+      42% |          39.9% |         no
+      50% |          47.5% |        yes
+      60% |          57.0% |        yes
+---------------------------------------
+The default benchmark workload (models/cnn.py) assumes 30% sparsity,
+which yields ~28.5% MAC power cut -- short of the spec's 'up to 40%' claim.
+Reaching 40% requires ~42% sparsity. Whether real workloads hit that
+depends entirely on the model being deployed -- this is a workload-
+dependent claim, not a hardware guarantee, and should be presented as such.
+
+--- Check 2: best-case vs worst-case TOPS/W ---
+Scenario                                                   |  Power(mW) |   TOPS/W |   W/TOPS | Meets 0.35?
+-----------------------------------------------------------------------------------------------------------
+Best case: cache on, spatial tiling                        |      190.9 |    5.360 |    0.187 |         yes
+Worst case (still completing): cache off, output_channel   |      216.4 |    4.729 |    0.211 |         yes
+Below cliff (128 B/cycle): illustrative only               |       95.1 |   n/a |   n/a | N/A (0 TOPS)
+-----------------------------------------------------------------------------------------------------------
+Note the third row: below the AXI cliff, the chip still burns ~95mW (wasted
+switching + leakage) while delivering ZERO useful TOPS -- W/TOPS is undefined,
+not just 'bad'. A watts-per-TOPS spec number is meaningless in that regime;
+what matters there is the livelock itself (see Phase 1.5/2 findings).
+
+NOTE: every energy constant behind these numbers is a documented order-of-
+magnitude assumption (config.py), not a vendor or silicon figure. This checks
+whether the claim is internally consistent across scenarios, not whether it's
+true. DDR energy per byte is assumed ~400x SRAM's, by common industry rule of
+thumb -- if that ratio is wrong for the real process/PHY, these numbers move.

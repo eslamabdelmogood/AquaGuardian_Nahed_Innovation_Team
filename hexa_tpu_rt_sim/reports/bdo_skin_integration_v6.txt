@@ -1,0 +1,89 @@
+==============================================================================
+BDO-SKIN Integration Benchmark
+600 FBG channels, 10 workers, 150 windows/scenario
+==============================================================================
+
+--- Scenario: normal (windows=150, critical=0) ---
+  Config: axi_width=640B/cyc  memory_aware=True  lookahead=True  policy=priority  cache_cap=4
+  Total cycles: 6340   Tasks completed: 615/615
+  Deadline misses: 0   Memory conflicts: 0
+  AXI utilization: 14.5%   AXI contention rate: 0.0%
+  Cache hit rate: 99.3%
+  Average power: 618.2 mW   (DDR share: 79%)
+  (no critical windows in this scenario -- no emergency path exercised)
+
+--- Scenario: gradual_anomaly (windows=150, critical=39) ---
+  Config: axi_width=640B/cyc  memory_aware=True  lookahead=True  policy=priority  cache_cap=4
+  Total cycles: 30819   Tasks completed: 1401/1401
+  Deadline misses: 0   Memory conflicts: 0
+  AXI utilization: 15.4%   AXI contention rate: 0.0%
+  Cache hit rate: 86.1%
+  Average power: 620.3 mW   (DDR share: 79%)
+  Emergency-path latency: n=390  min=0.423us  mean=0.423us  max=0.423us
+  Emergency tasks: 390/390 finished, 0 missed deadline, 0 never completed
+
+--- Scenario: burst_anomaly (windows=150, critical=10) ---
+  Config: axi_width=640B/cyc  memory_aware=True  lookahead=True  policy=priority  cache_cap=4
+  Total cycles: 12878   Tasks completed: 814/814
+  Deadline misses: 0   Memory conflicts: 0
+  AXI utilization: 14.9%   AXI contention rate: 0.0%
+  Cache hit rate: 93.4%
+  Average power: 620.4 mW   (DDR share: 79%)
+  Emergency-path latency: n=100  min=0.423us  mean=0.423us  max=0.423us
+  Emergency tasks: 100/100 finished, 0 missed deadline, 0 never completed
+
+--- Scenario: critical_event (windows=150, critical=48) ---
+  Config: axi_width=640B/cyc  memory_aware=True  lookahead=True  policy=priority  cache_cap=4
+  Total cycles: 35855   Tasks completed: 1568/1568
+  Deadline misses: 0   Memory conflicts: 0
+  AXI utilization: 15.3%   AXI contention rate: 0.0%
+  Cache hit rate: 84.4%
+  Average power: 621.4 mW   (DDR share: 78%)
+  Emergency-path latency: n=480  min=0.423us  mean=0.423us  max=0.423us
+  Emergency tasks: 480/480 finished, 0 missed deadline, 0 never completed
+
+==============================================================================
+VERDICT
+==============================================================================
+normal            : no critical windows (baseline load only) -- 0 deadline misses, 618mW average
+gradual_anomaly   : HANDLED            39 critical windows, 0/390 emergency tasks missed deadline, latency mean 0.42us
+burst_anomaly     : HANDLED            10 critical windows, 0/100 emergency tasks missed deadline, latency mean 0.42us
+critical_event    : HANDLED            48 critical windows, 0/480 emergency tasks missed deadline, latency mean 0.42us
+
+These figures describe this simulator's architectural model of HEXA-TPU-RT
+under the documented assumptions in config.py (AXI bandwidth, DDR latency,
+cache capacity, per-MAC energy, etc.) -- they are not a claim about real
+silicon performance, and BDO-SKIN's own sensing physics are not re-validated
+here (see models/sensor_events.py docstring for what is and isn't modeled).
+
+==========================================================================================
+Naive vs. Improved Pipeline, all scenarios, AXI width=64B/cycle (narrow, to force real contention)
+==========================================================================================
+Scenario           | Formula    | TotalMiss | EmergencyMiss | AXI Contention
+----------------------------------------------------------------------------
+normal             | naive      |         3 |    0/0        |          39.5%
+normal             | improved   |         1 |    0/0        |          52.3%
+gradual_anomaly    | naive      |       191 |   38/390      |          86.8%
+gradual_anomaly    | improved   |         2 |    0/390      |          98.3%
+burst_anomaly      | naive      |        49 |    9/100      |          76.8%
+burst_anomaly      | improved   |         2 |    0/100      |          90.6%
+critical_event     | naive      |       238 |   47/480      |          85.6%
+critical_event     | improved   |         2 |    0/480      |          97.9%
+----------------------------------------------------------------------------
+
+VERDICT:
+Under genuine AXI contention (64 B/cycle -- narrower than what
+HOT_BANK_READ_PORTS-limited dispatch alone would stress), the naive baseline
+(memory-blind deadlines, FIFO) misses real emergency-path deadlines in every
+anomaly scenario tested -- up to 47/480 in the sustained critical_event case.
+The improved pipeline (memory-aware + lookahead deadlines, priority scheduling
+-- exactly the fixes validated on the Transformer workload in Phases 2/6/7)
+reduces emergency-path misses to ZERO in every scenario tested. This is the
+same fix, transferring cleanly to a genuinely independent workload it was
+never tuned against -- real evidence of generality, not a re-run of Phase 4.
+
+Caveat: this compares HEXA-TPU-RT's OWN pipeline configurations against each
+other, using this simulator's documented assumptions (config.py). It is not a
+claim that the 'improved' configuration meets any external latency requirement
+BDO-SKIN's own report states, since that report's numbers come from an unrelated
+simulation of panel physics, not from running on this or any real chip.

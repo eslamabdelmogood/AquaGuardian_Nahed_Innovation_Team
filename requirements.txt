@@ -1,0 +1,11 @@
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.29,<1.0
+
+# Required by the bundled hexa_tpu_rt_sim module (hardware/network/MEC
+# simulator used by app/hardware_bridge.py):
+numpy>=1.26,<3.0
+requests>=2.31,<3.0
+# 'acmecse' is intentionally NOT listed here — it is only needed to run a
+# real external oneM2M CSE server for hexa_tpu_rt_sim's HTTP-binding tests
+# (the 3 tests skipped in hexa_tpu_rt_sim/tests/test_middleware_mec.py).
+# Not required for anything this project's console or API uses.

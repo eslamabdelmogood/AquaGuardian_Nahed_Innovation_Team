@@ -1,0 +1,57 @@
+==============================================================================
+Transformer Stress Test -- 10 workers, 108 tasks across 12 heterogeneous op-layers
+==============================================================================
+
+Per-layer MAC profile (note the burstiness -- FFN vs attention differ ~8x):
+  block0_qkv_proj        25,165,824 MACs across  8 tasks ( 3,145,728 MACs/task)
+  block0_attn_scores      4,194,304 MACs across  8 tasks (   524,288 MACs/task)
+  block0_attn_v           4,194,304 MACs across  8 tasks (   524,288 MACs/task)
+  block0_out_proj         8,388,608 MACs across 10 tasks (   838,860 MACs/task)
+  block0_ffn1            33,554,432 MACs across 10 tasks ( 3,355,443 MACs/task)
+  block0_ffn2            33,554,432 MACs across 10 tasks ( 3,355,443 MACs/task)
+  block1_qkv_proj        25,165,824 MACs across  8 tasks ( 3,145,728 MACs/task)
+  block1_attn_scores      4,194,304 MACs across  8 tasks (   524,288 MACs/task)
+  block1_attn_v           4,194,304 MACs across  8 tasks (   524,288 MACs/task)
+  block1_out_proj         8,388,608 MACs across 10 tasks (   838,860 MACs/task)
+  block1_ffn1            33,554,432 MACs across 10 tasks ( 3,355,443 MACs/task)
+  block1_ffn2            33,554,432 MACs across 10 tasks ( 3,355,443 MACs/task)
+
+--- Baseline: generous AXI (640 B/cycle), zero contention ---
+  Occupancy: 93.0%  Deadline misses: 0  Memory conflicts: 0
+  Occupancy is NOT 100% even here -- num_heads=8 < num_workers=10 means
+  attention phases structurally can't use every worker. This bubble is about
+  parallelism, not memory bandwidth, and the CNN benchmark could never show it.
+
+--- The real test: does the Phase 2 fix generalize to this workload? ---
+ AXI Width | Formula                  | Occupancy | DlnMiss |    Completed
+--------------------------------------------------------------------------
+       128 | memory-blind (Phase 1.5) |     62.0% |      49 |    59/108
+       128 | memory-aware (Phase 2)   |     46.0% |       9 |    99/108
+       256 | memory-blind (Phase 1.5) |     71.4% |      43 |    65/108
+       256 | memory-aware (Phase 2)   |     68.2% |       9 |    99/108
+       384 | memory-blind (Phase 1.5) |     79.8% |      32 |    76/108
+       384 | memory-aware (Phase 2)   |     79.0% |       6 |   102/108
+       448 | memory-blind (Phase 1.5) |     83.8% |       0 |   108/108
+       448 | memory-aware (Phase 2)   |     83.8% |       0 |   108/108
+       512 | memory-blind (Phase 1.5) |     87.4% |       0 |   108/108
+       512 | memory-aware (Phase 2)   |     87.4% |       0 |   108/108
+       640 | memory-blind (Phase 1.5) |     93.0% |       0 |   108/108
+       640 | memory-aware (Phase 2)   |     93.0% |       0 |   108/108
+--------------------------------------------------------------------------
+
+VERDICT:
+Unlike the CNN benchmark, the memory-blind formula does NOT show a binary
+cliff here -- it degrades gradually (misses fall smoothly as width increases).
+That means the Phase 1.5/2 'total livelock' cliff is a property of UNIFORM,
+SYMMETRIC demand, not a general property of the memory-blind formula -- a real
+workload with mixed task sizes fails more gracefully even without the fix.
+
+The memory-aware fix still helps substantially (fewer misses at every width
+below the full-bandwidth point), but does NOT fully eliminate misses the way
+it did on the CNN benchmark. Residual misses concentrate specifically in QKV
+projection tasks -- the largest per-head task, and the first op dispatched in
+each block, when all 8 heads' AXI requests ramp up together faster than the
+assignment-time snapshot estimate can foresee. This is the concrete case behind
+the caveat already flagged in Phase 2: 'estimate is fixed at assignment, blind
+to contention that hasn't started yet.' The fix is real and substantial, but
+not complete -- Phase 7's adaptive re-estimation is what would close this gap.

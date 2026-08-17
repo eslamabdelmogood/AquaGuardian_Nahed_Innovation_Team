@@ -1,0 +1,8 @@
+numpy
+requests
+
+# Optional: only needed to run a REAL oneM2M CSE locally for
+# middleware/onem2m_http.py's HTTP transport (see deploy/run_acme_cse.sh
+# and README.md's "Phase 8" section). Not required for the in-memory
+# MN_CSE simulation in middleware/onem2m.py.
+acmecse

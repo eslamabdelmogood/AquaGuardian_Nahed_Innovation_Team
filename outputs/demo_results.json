@@ -1,0 +1,925 @@
+{
+  "pipeline_leak": {
+    "scenario": "pipeline_leak",
+    "detected_risk": 0.96,
+    "selected_action": "isolate_zone",
+    "confidence": 0.8718,
+    "reliability": 0.99,
+    "iterations": 3,
+    "executed": true,
+    "evidence": [
+      "detected_risk=0.960",
+      "selected_worst_score=38.464",
+      "stress_profiles=3",
+      "decision_latency_ms=0.187",
+      "offline_edge_path=true"
+    ],
+    "alternatives": [
+      {
+        "action": "do_nothing",
+        "passed_all_stress_tests": false,
+        "worst_score": 15.5579,
+        "stress_runs": [
+          {
+            "action": "do_nothing",
+            "water_loss_l": 900.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.55,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.14,
+            "passed": false,
+            "score": 17.8412,
+            "reasons": [
+              "safety risk above 0.35",
+              "water loss above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 1080.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.5678,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1489,
+            "passed": false,
+            "score": 16.518,
+            "reasons": [
+              "safety risk above 0.35",
+              "water loss above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 1305.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.5525,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1413,
+            "passed": false,
+            "score": 15.5579,
+            "reasons": [
+              "safety risk above 0.35",
+              "water loss above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "safety risk above 0.35",
+          "water loss above limit"
+        ]
+      },
+      {
+        "action": "reduce_pressure",
+        "passed_all_stress_tests": false,
+        "worst_score": 35.0795,
+        "stress_runs": [
+          {
+            "action": "reduce_pressure",
+            "water_loss_l": 315.0,
+            "energy_kwh": 0.35,
+            "safety_risk": 0.1,
+            "service_disruption_min": 4.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.14,
+            "passed": true,
+            "score": 37.5352,
+            "reasons": []
+          },
+          {
+            "action": "reduce_pressure",
+            "water_loss_l": 378.0,
+            "energy_kwh": 0.35,
+            "safety_risk": 0.092,
+            "service_disruption_min": 4.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.136,
+            "passed": true,
+            "score": 36.3614,
+            "reasons": []
+          },
+          {
+            "action": "reduce_pressure",
+            "water_loss_l": 456.75,
+            "energy_kwh": 0.35,
+            "safety_risk": 0.0806,
+            "service_disruption_min": 4.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1303,
+            "passed": false,
+            "score": 35.0795,
+            "reasons": [
+              "water loss above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "water loss above limit"
+        ]
+      },
+      {
+        "action": "isolate_zone",
+        "passed_all_stress_tests": true,
+        "worst_score": 38.4635,
+        "stress_runs": [
+          {
+            "action": "isolate_zone",
+            "water_loss_l": 72.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1,
+            "service_disruption_min": 18.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.14,
+            "passed": true,
+            "score": 40.833,
+            "reasons": []
+          },
+          {
+            "action": "isolate_zone",
+            "water_loss_l": 86.4,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1019,
+            "service_disruption_min": 18.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1409,
+            "passed": true,
+            "score": 40.2059,
+            "reasons": []
+          },
+          {
+            "action": "isolate_zone",
+            "water_loss_l": 104.4,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1159,
+            "service_disruption_min": 22.0,
+            "crop_stress": 0.2,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1179,
+            "passed": true,
+            "score": 38.4635,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      }
+    ]
+  },
+  "pump_degradation": {
+    "scenario": "pump_degradation",
+    "detected_risk": 0.8125,
+    "selected_action": "switch_to_backup",
+    "confidence": 0.806,
+    "reliability": 0.99,
+    "iterations": 4,
+    "executed": true,
+    "evidence": [
+      "detected_risk=0.812",
+      "selected_worst_score=46.320",
+      "stress_profiles=3",
+      "decision_latency_ms=0.162",
+      "offline_edge_path=true"
+    ],
+    "alternatives": [
+      {
+        "action": "do_nothing",
+        "passed_all_stress_tests": false,
+        "worst_score": 17.5189,
+        "stress_runs": [
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.82,
+            "service_disruption_min": 8.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.126,
+            "passed": false,
+            "score": 20.1194,
+            "reasons": [
+              "safety risk above 0.35"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 1.0,
+            "service_disruption_min": 8.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1349,
+            "passed": false,
+            "score": 17.5189,
+            "reasons": [
+              "safety risk above 0.35"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 1.0,
+            "service_disruption_min": 8.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1273,
+            "passed": false,
+            "score": 17.5656,
+            "reasons": [
+              "safety risk above 0.35"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "safety risk above 0.35"
+        ]
+      },
+      {
+        "action": "reduce_speed",
+        "passed_all_stress_tests": true,
+        "worst_score": 39.4815,
+        "stress_runs": [
+          {
+            "action": "reduce_speed",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.55,
+            "safety_risk": 0.22,
+            "service_disruption_min": 5.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.126,
+            "passed": true,
+            "score": 39.4815,
+            "reasons": []
+          },
+          {
+            "action": "reduce_speed",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.55,
+            "safety_risk": 0.212,
+            "service_disruption_min": 5.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.122,
+            "passed": true,
+            "score": 40.115,
+            "reasons": []
+          },
+          {
+            "action": "reduce_speed",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.55,
+            "safety_risk": 0.2006,
+            "service_disruption_min": 5.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1163,
+            "passed": true,
+            "score": 41.0537,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      },
+      {
+        "action": "switch_to_backup",
+        "passed_all_stress_tests": true,
+        "worst_score": 46.3199,
+        "stress_runs": [
+          {
+            "action": "switch_to_backup",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.08,
+            "service_disruption_min": 2.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.126,
+            "passed": true,
+            "score": 48.2431,
+            "reasons": []
+          },
+          {
+            "action": "switch_to_backup",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.0819,
+            "service_disruption_min": 2.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1269,
+            "passed": true,
+            "score": 48.0254,
+            "reasons": []
+          },
+          {
+            "action": "switch_to_backup",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.0959,
+            "service_disruption_min": 6.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1039,
+            "passed": true,
+            "score": 46.3199,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      },
+      {
+        "action": "shutdown",
+        "passed_all_stress_tests": true,
+        "worst_score": 45.0979,
+        "stress_runs": [
+          {
+            "action": "shutdown",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.1,
+            "safety_risk": 0.05,
+            "service_disruption_min": 30.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.126,
+            "passed": true,
+            "score": 46.3607,
+            "reasons": []
+          },
+          {
+            "action": "shutdown",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.1,
+            "safety_risk": 0.0621,
+            "service_disruption_min": 30.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.132,
+            "passed": true,
+            "score": 45.0979,
+            "reasons": []
+          },
+          {
+            "action": "shutdown",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.1,
+            "safety_risk": 0.0364,
+            "service_disruption_min": 30.0,
+            "crop_stress": 0.18,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.1192,
+            "passed": true,
+            "score": 47.8698,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      }
+    ]
+  },
+  "water_contamination": {
+    "scenario": "water_contamination",
+    "detected_risk": 0.8,
+    "selected_action": "isolate_and_flush",
+    "confidence": 0.832,
+    "reliability": 0.99,
+    "iterations": 3,
+    "executed": true,
+    "evidence": [
+      "detected_risk=0.800",
+      "selected_worst_score=34.352",
+      "stress_profiles=3",
+      "decision_latency_ms=0.124",
+      "offline_edge_path=true"
+    ],
+    "alternatives": [
+      {
+        "action": "do_nothing",
+        "passed_all_stress_tests": false,
+        "worst_score": 8.8766,
+        "stress_runs": [
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.95,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 100.0,
+            "fire_risk": 0.154,
+            "passed": false,
+            "score": 10.5787,
+            "reasons": [
+              "safety risk above 0.35",
+              "contamination exposure above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.9678,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 120.0,
+            "fire_risk": 0.1629,
+            "passed": false,
+            "score": 9.6693,
+            "reasons": [
+              "safety risk above 0.35",
+              "contamination exposure above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.9525,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 145.0,
+            "fire_risk": 0.1553,
+            "passed": false,
+            "score": 8.8766,
+            "reasons": [
+              "safety risk above 0.35",
+              "contamination exposure above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "contamination exposure above limit",
+          "safety risk above 0.35"
+        ]
+      },
+      {
+        "action": "divert_to_treatment",
+        "passed_all_stress_tests": true,
+        "worst_score": 30.1477,
+        "stress_runs": [
+          {
+            "action": "divert_to_treatment",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.4,
+            "safety_risk": 0.1,
+            "service_disruption_min": 8.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 12.0,
+            "fire_risk": 0.154,
+            "passed": true,
+            "score": 34.5861,
+            "reasons": []
+          },
+          {
+            "action": "divert_to_treatment",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.4,
+            "safety_risk": 0.092,
+            "service_disruption_min": 8.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 14.4,
+            "fire_risk": 0.15,
+            "passed": true,
+            "score": 33.929,
+            "reasons": []
+          },
+          {
+            "action": "divert_to_treatment",
+            "water_loss_l": 0.0,
+            "energy_kwh": 1.4,
+            "safety_risk": 0.1406,
+            "service_disruption_min": 12.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 17.4,
+            "fire_risk": 0.1443,
+            "passed": true,
+            "score": 30.1477,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      },
+      {
+        "action": "isolate_and_flush",
+        "passed_all_stress_tests": true,
+        "worst_score": 34.3517,
+        "stress_runs": [
+          {
+            "action": "isolate_and_flush",
+            "water_loss_l": 120.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1,
+            "service_disruption_min": 25.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 4.0,
+            "fire_risk": 0.154,
+            "passed": true,
+            "score": 34.8473,
+            "reasons": []
+          },
+          {
+            "action": "isolate_and_flush",
+            "water_loss_l": 120.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1019,
+            "service_disruption_min": 25.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 4.8,
+            "fire_risk": 0.1549,
+            "passed": true,
+            "score": 34.3517,
+            "reasons": []
+          },
+          {
+            "action": "isolate_and_flush",
+            "water_loss_l": 120.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.0559,
+            "service_disruption_min": 25.0,
+            "crop_stress": 0.22,
+            "contamination_exposure": 5.8,
+            "fire_risk": 0.1319,
+            "passed": true,
+            "score": 36.7503,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      }
+    ]
+  },
+  "drought_stress": {
+    "scenario": "drought_stress",
+    "detected_risk": 0.7796,
+    "selected_action": "precision_irrigation",
+    "confidence": 0.9034,
+    "reliability": 0.99,
+    "iterations": 3,
+    "executed": true,
+    "evidence": [
+      "detected_risk=0.780",
+      "selected_worst_score=38.097",
+      "stress_profiles=3",
+      "decision_latency_ms=0.246",
+      "offline_edge_path=true"
+    ],
+    "alternatives": [
+      {
+        "action": "do_nothing",
+        "passed_all_stress_tests": false,
+        "worst_score": 22.7066,
+        "stress_runs": [
+          {
+            "action": "do_nothing",
+            "water_loss_l": 15.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.84,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.7392,
+            "passed": false,
+            "score": 25.8171,
+            "reasons": [
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 15.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1178,
+            "service_disruption_min": 0.0,
+            "crop_stress": 1.0,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.8889,
+            "passed": false,
+            "score": 22.7066,
+            "reasons": [
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 15.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.1025,
+            "service_disruption_min": 0.0,
+            "crop_stress": 1.0,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.8813,
+            "passed": false,
+            "score": 23.1075,
+            "reasons": [
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "crop stress above limit",
+          "fire risk above limit"
+        ]
+      },
+      {
+        "action": "fixed_schedule",
+        "passed_all_stress_tests": false,
+        "worst_score": 26.1472,
+        "stress_runs": [
+          {
+            "action": "fixed_schedule",
+            "water_loss_l": 260.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.1,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.4368,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.4032,
+            "passed": false,
+            "score": 28.9796,
+            "reasons": [
+              "fire risk above limit"
+            ]
+          },
+          {
+            "action": "fixed_schedule",
+            "water_loss_l": 312.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.092,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.52,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.476,
+            "passed": false,
+            "score": 26.656,
+            "reasons": [
+              "fire risk above limit"
+            ]
+          },
+          {
+            "action": "fixed_schedule",
+            "water_loss_l": 377.0,
+            "energy_kwh": 1.15,
+            "safety_risk": 0.0806,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.52,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.4703,
+            "passed": false,
+            "score": 26.1472,
+            "reasons": [
+              "fire risk above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "fire risk above limit"
+        ]
+      },
+      {
+        "action": "precision_irrigation",
+        "passed_all_stress_tests": true,
+        "worst_score": 38.0967,
+        "stress_runs": [
+          {
+            "action": "precision_irrigation",
+            "water_loss_l": 95.0,
+            "energy_kwh": 0.75,
+            "safety_risk": 0.1,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.252,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.21,
+            "passed": true,
+            "score": 40.8247,
+            "reasons": []
+          },
+          {
+            "action": "precision_irrigation",
+            "water_loss_l": 114.0,
+            "energy_kwh": 0.75,
+            "safety_risk": 0.1019,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.3,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.2509,
+            "passed": true,
+            "score": 38.0967,
+            "reasons": []
+          },
+          {
+            "action": "precision_irrigation",
+            "water_loss_l": 137.75,
+            "energy_kwh": 0.75,
+            "safety_risk": 0.0559,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.3,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.2279,
+            "passed": true,
+            "score": 40.9433,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      }
+    ]
+  },
+  "wildfire_risk": {
+    "scenario": "wildfire_risk",
+    "detected_risk": 0.7552,
+    "selected_action": "mist_and_drones",
+    "confidence": 0.8487,
+    "reliability": 0.99,
+    "iterations": 3,
+    "executed": true,
+    "evidence": [
+      "detected_risk=0.755",
+      "selected_worst_score=34.679",
+      "stress_profiles=3",
+      "decision_latency_ms=0.142",
+      "offline_edge_path=true"
+    ],
+    "alternatives": [
+      {
+        "action": "do_nothing",
+        "passed_all_stress_tests": false,
+        "worst_score": 12.5549,
+        "stress_runs": [
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.8,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.78,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.7215,
+            "passed": false,
+            "score": 15.2718,
+            "reasons": [
+              "safety risk above 0.35",
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.8878,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.936,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.8747,
+            "passed": false,
+            "score": 13.584,
+            "reasons": [
+              "safety risk above 0.35",
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          },
+          {
+            "action": "do_nothing",
+            "water_loss_l": 0.0,
+            "energy_kwh": 0.5,
+            "safety_risk": 0.96,
+            "service_disruption_min": 0.0,
+            "crop_stress": 1.0,
+            "contamination_exposure": 0.0,
+            "fire_risk": 1.0,
+            "passed": false,
+            "score": 12.5549,
+            "reasons": [
+              "safety risk above 0.35",
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "crop stress above limit",
+          "fire risk above limit",
+          "safety risk above 0.35"
+        ]
+      },
+      {
+        "action": "mist_only",
+        "passed_all_stress_tests": false,
+        "worst_score": 27.465,
+        "stress_runs": [
+          {
+            "action": "mist_only",
+            "water_loss_l": 145.0,
+            "energy_kwh": 0.95,
+            "safety_risk": 0.1,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.5616,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.3463,
+            "passed": true,
+            "score": 31.4297,
+            "reasons": []
+          },
+          {
+            "action": "mist_only",
+            "water_loss_l": 174.0,
+            "energy_kwh": 0.95,
+            "safety_risk": 0.092,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.6739,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.4116,
+            "passed": false,
+            "score": 28.9805,
+            "reasons": [
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          },
+          {
+            "action": "mist_only",
+            "water_loss_l": 210.25,
+            "energy_kwh": 0.95,
+            "safety_risk": 0.0806,
+            "service_disruption_min": 0.0,
+            "crop_stress": 0.72,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.4703,
+            "passed": false,
+            "score": 27.465,
+            "reasons": [
+              "fire risk above limit",
+              "crop stress above limit"
+            ]
+          }
+        ],
+        "rejection_reasons": [
+          "crop stress above limit",
+          "fire risk above limit"
+        ]
+      },
+      {
+        "action": "mist_and_drones",
+        "passed_all_stress_tests": true,
+        "worst_score": 34.6793,
+        "stress_runs": [
+          {
+            "action": "mist_and_drones",
+            "water_loss_l": 180.0,
+            "energy_kwh": 1.35,
+            "safety_risk": 0.1,
+            "service_disruption_min": 1.0,
+            "crop_stress": 0.429,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.0722,
+            "passed": true,
+            "score": 37.2084,
+            "reasons": []
+          },
+          {
+            "action": "mist_and_drones",
+            "water_loss_l": 216.0,
+            "energy_kwh": 1.35,
+            "safety_risk": 0.1019,
+            "service_disruption_min": 1.0,
+            "crop_stress": 0.5148,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.0875,
+            "passed": true,
+            "score": 34.6793,
+            "reasons": []
+          },
+          {
+            "action": "mist_and_drones",
+            "water_loss_l": 261.0,
+            "energy_kwh": 1.35,
+            "safety_risk": 0.0559,
+            "service_disruption_min": 1.0,
+            "crop_stress": 0.55,
+            "contamination_exposure": 0.0,
+            "fire_risk": 0.0779,
+            "passed": true,
+            "score": 35.6434,
+            "reasons": []
+          }
+        ],
+        "rejection_reasons": []
+      }
+    ]
+  }
+}

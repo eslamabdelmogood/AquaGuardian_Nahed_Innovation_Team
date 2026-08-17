@@ -1,0 +1,8 @@
+[project]
+name = "aquaguardian-ai"
+version = "2.0.0"
+description = "Closed-loop edge AI proof of concept for resilient water infrastructure"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

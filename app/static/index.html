@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AquaGuardian AI — Live Closed-Loop Engine (Backend-Connected)</title>
+<style>
+
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --basin-950:#081A1F;
+    --basin-900:#0F272E;
+    --basin-800:#173840;
+    --basin-700:#204750;
+    --current-500:#35A79B;
+    --current-300:#8FD8CC;
+    --ember-500:#E8622C;
+    --ember-300:#F3A583;
+    --amber-400:#D9A65C;
+    --mist-100:#EAF6F3;
+    --slate-400:#7E9C99;
+    --line:#1E4048;
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--basin-950);
+    color:var(--mist-100);
+    font-family:'IBM Plex Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    text-transform:uppercase;
+    font-size:11.5px;
+    letter-spacing:.14em;
+    color:var(--current-300);
+  }
+  a{color:inherit;}
+
+  /* ===== NAV / TICKER ===== */
+  .nav{
+    position:sticky;top:0;z-index:40;
+    background:rgba(8,26,31,.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 0;
+  }
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;}
+  .brand-mark{width:9px;height:9px;border-radius:50%;background:var(--current-500);box-shadow:0 0 0 3px rgba(53,167,155,.25);}
+  .ticker-strip{
+    overflow:hidden;white-space:nowrap;
+    border-top:1px solid var(--line);
+    background:var(--basin-900);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;color:var(--slate-400);
+  }
+  .ticker-track{display:inline-block;padding-left:100%;animation:ticker 34s linear infinite;}
+  .ticker-track span{margin-right:46px;}
+  .ticker-track span b{color:var(--current-300);font-weight:500;}
+  @keyframes ticker{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+
+  /* ===== HERO ===== */
+  .hero{padding:76px 0 54px;}
+  .hero-thesis{margin-bottom:26px;}
+  .old-way{
+    font-size:15px;color:var(--slate-400);
+    text-decoration:line-through;text-decoration-color:var(--ember-500);
+    margin-bottom:10px;
+  }
+  .old-way span{opacity:.75;}
+  .new-way{
+    font-size:clamp(38px,6vw,68px);
+    font-weight:700;line-height:1.02;
+    background:linear-gradient(100deg,var(--mist-100) 30%,var(--current-300) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-sub{
+    max-width:560px;color:var(--slate-400);font-size:15.5px;line-height:1.6;margin-top:18px;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end;margin-top:36px;}
+  @media (max-width:860px){.hero-grid{grid-template-columns:1fr;}}
+
+  .readout-card{
+    background:var(--basin-900);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;
+  }
+  .readout-title{font-size:12px;color:var(--slate-400);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;}
+  .readout-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line);}
+  .readout-row:last-child{border-bottom:none;}
+  .readout-row b{color:var(--current-300);font-weight:500;}
+  .ok-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--current-500);margin-right:6px;}
+
+  /* ===== SECTION HEADERS ===== */
+  .section{padding:56px 0;border-top:1px solid var(--line);}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:28px;flex-wrap:wrap;}
+  .section-title{font-size:26px;font-weight:600;}
+  .section-desc{color:var(--slate-400);font-size:14px;max-width:460px;line-height:1.55;}
+
+  /* ===== SCENARIO SELECTOR ===== */
+  .scenario-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+  @media (max-width:760px){.scenario-row{grid-template-columns:repeat(2,1fr);}}
+  .scenario-btn{
+    background:var(--basin-900);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px 16px;text-align:left;cursor:pointer;color:var(--mist-100);
+    transition:border-color .2s,transform .2s,background .2s;font-family:inherit;
+  }
+  .scenario-btn:hover{border-color:var(--current-500);transform:translateY(-2px);}
+  .scenario-btn.active{border-color:var(--current-500);background:var(--basin-800);}
+  .scenario-btn .tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;}
+  .scenario-btn .name{font-weight:600;font-size:15px;margin-top:6px;}
+  .scenario-btn .loc{font-size:12.5px;color:var(--slate-400);margin-top:3px;}
+  .scenario-btn[data-kind="fire"] .tag{color:var(--ember-300);}
+  .scenario-btn[data-kind="drought"] .tag{color:var(--amber-400);}
+  .scenario-btn[data-kind="industrial"] .tag{color:var(--current-300);}
+
+  /* ===== GREEN BOX CROSS-PLATFORM SECTION ===== */
+  .gb-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:22px;}
+  .gb-stat-card{
+    background:var(--basin-900);border:1px solid var(--line);border-radius:12px;padding:16px 16px;
+  }
+  .gb-stat-card .big{font-family:'IBM Plex Mono',monospace;font-size:22px;color:var(--current-300);font-weight:500;}
+  .gb-stat-card .lbl{font-size:12.5px;color:var(--slate-400);margin-top:6px;line-height:1.4;}
+  .gb-note{
+    margin-top:20px;color:var(--slate-400);font-size:14px;line-height:1.6;max-width:760px;
+  }
+  .gb-note b{color:var(--mist-100);font-weight:500;}
+
+  /* ===== HARDWARE LAYER PANEL ===== */
+  .hw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+  .hw-card{background:var(--basin-900);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .hw-card .hw-title{font-family:'IBM Plex Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--current-300);margin-bottom:10px;}
+  .hw-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:1px dashed var(--line);}
+  .hw-row:last-child{border-bottom:none;}
+  .hw-row span:first-child{color:var(--slate-400);}
+  .hw-row b{font-family:'IBM Plex Mono',monospace;font-weight:500;color:var(--mist-100);}
+  .hw-note{margin-top:16px;color:var(--slate-400);font-size:12.5px;line-height:1.55;max-width:760px;}
+
+  /* ===== PIPELINE ===== */
+  .pipeline-panel{
+    background:var(--basin-900);border:1px solid var(--line);border-radius:20px;
+    padding:30px 26px 26px;
+  }
+  .pipeline-row{
+    display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding-bottom:8px;
+  }
+  .stage{
+    display:flex;flex-direction:column;align-items:center;min-width:112px;position:relative;
+  }
+  .stage-node{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--basin-800);border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--slate-400);
+    transition:all .35s ease;z-index:2;
+  }
+  .stage-label{margin-top:10px;font-size:12px;text-align:center;color:var(--slate-400);transition:color .3s;font-weight:500;}
+  .stage-connector{
+    height:2px;background:var(--line);flex:1;margin-top:25px;min-width:20px;
+    transition:background .35s ease;
+  }
+  .stage.done .stage-node{background:var(--current-500);border-color:var(--current-500);color:var(--basin-950);}
+  .stage.done .stage-label{color:var(--current-300);}
+  .stage.active .stage-node{border-color:var(--current-500);color:var(--current-300);box-shadow:0 0 0 5px rgba(53,167,155,.16);animation:pulse 1.4s ease-in-out infinite;}
+  .stage.active .stage-label{color:var(--mist-100);}
+  .stage.failed .stage-node{border-color:var(--ember-500);color:var(--ember-300);animation:none;box-shadow:0 0 0 5px rgba(232,98,44,.16);}
+  .stage.failed .stage-label{color:var(--ember-300);}
+  .stage-connector.done{background:var(--current-500);}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+  @media (prefers-reduced-motion:reduce){
+    .stage.active .stage-node{animation:none;}
+    .ticker-track{animation:none;}
+  }
+
+  .retry-banner{
+    margin-top:18px;padding:10px 14px;border-radius:10px;
+    background:rgba(232,98,44,.1);border:1px solid rgba(232,98,44,.35);
+    color:var(--ember-300);font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+    display:none;align-items:center;gap:8px;
+  }
+  .retry-banner.show{display:flex;}
+
+  .stage-detail{
+    margin-top:22px;background:var(--basin-950);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;min-height:96px;
+  }
+  .stage-detail .k{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;}
+  .stage-detail .v{margin-top:8px;font-size:14.5px;line-height:1.6;color:var(--mist-100);}
+  .stage-detail .telemetry{margin-top:12px;display:flex;gap:22px;flex-wrap:wrap;}
+  .stage-detail .telemetry div{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--current-300);}
+  .stage-detail .telemetry div span{display:block;color:var(--slate-400);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+
+  .idle-msg{color:var(--slate-400);font-size:14px;padding:10px 2px;}
+
+  .replay-btn{
+    margin-top:20px;background:none;border:1px solid var(--line);color:var(--slate-400);
+    padding:9px 16px;border-radius:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    cursor:pointer;transition:border-color .2s,color .2s;
+  }
+  .replay-btn:hover{border-color:var(--current-500);color:var(--current-300);}
+  .replay-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+  /* ===== TWIN + METRICS ===== */
+  .twin-metrics-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;}
+  @media (max-width:900px){.twin-metrics-grid{grid-template-columns:1fr;}}
+  .panel{background:var(--basin-900);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .panel-title{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--slate-400);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;}
+
+  .metric{margin-bottom:16px;}
+  .metric:last-child{margin-bottom:0;}
+  .metric-top{display:flex;justify-content:space-between;font-size:13px;color:var(--slate-400);margin-bottom:6px;}
+  .metric-num{font-family:'IBM Plex Mono',monospace;color:var(--mist-100);font-weight:500;}
+  .bar-track{height:6px;border-radius:4px;background:var(--basin-800);overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--current-500),var(--current-300));width:0%;transition:width 1.1s cubic-bezier(.3,.9,.3,1);}
+  .bar-fill.amber{background:linear-gradient(90deg,var(--amber-400),#f0cf98);}
+  .bar-fill.ember{background:linear-gradient(90deg,var(--ember-500),var(--ember-300));}
+
+  /* ===== GREEN BOX STRIP ===== */
+  .gbox-strip{
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    background:var(--basin-900);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 22px;
+  }
+  .gbox-left{display:flex;align-items:center;gap:14px;}
+  .gbox-icon{
+    width:40px;height:40px;border-radius:10px;background:var(--basin-800);
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--current-300);
+  }
+  .gbox-stat{text-align:right;}
+  .gbox-stat .n{font-family:'IBM Plex Mono',monospace;font-size:15px;color:var(--current-300);}
+  .gbox-stat .l{font-size:10.5px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.06em;}
+  .gbox-stats{display:flex;gap:26px;flex-wrap:wrap;}
+
+  /* ===== USE CASES / FOOTER ===== */
+  .usecase-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;}
+  @media (max-width:860px){.usecase-row{grid-template-columns:repeat(3,1fr);}}
+  @media (max-width:520px){.usecase-row{grid-template-columns:repeat(2,1fr);}}
+  .usecase{
+    border:1px solid var(--line);border-radius:10px;padding:14px 10px;text-align:center;
+    font-size:12.5px;color:var(--slate-400);background:var(--basin-900);
+  }
+
+  .philosophy{
+    margin-top:44px;padding:34px 30px;border-radius:18px;
+    background:linear-gradient(135deg,var(--basin-900),var(--basin-800));
+    border:1px solid var(--line);
+  }
+  .philosophy p{font-size:18px;line-height:1.55;font-family:'Space Grotesk',sans-serif;font-weight:500;max-width:760px;}
+  .philosophy .attr{margin-top:14px;color:var(--slate-400);font-size:12.5px;font-family:'IBM Plex Mono',monospace;}
+
+  footer{padding:40px 0 70px;color:var(--slate-400);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+
+  .conn-badge{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--slate-400);}
+  .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--slate-400);}
+  .conn-dot.live{background:var(--current-500);box-shadow:0 0 0 3px rgba(53,167,155,.22);}
+  .conn-dot.down{background:var(--ember-500);box-shadow:0 0 0 3px rgba(232,98,44,.22);}
+
+
+  /* ===== SAME-SCREEN STRATEGY COMPARISON ===== */
+  .comparison-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px;}
+  @media(max-width:900px){.comparison-grid{grid-template-columns:1fr;}}
+  .strategy-card{background:var(--basin-900);border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;}
+  .strategy-card.aqua{border-color:var(--current-500);box-shadow:0 0 0 1px rgba(53,167,155,.18) inset;}
+  .strategy-card.aqua:before{content:'VALIDATED';position:absolute;top:12px;right:12px;font:10px 'IBM Plex Mono',monospace;letter-spacing:.1em;color:var(--current-300);}
+  .strategy-name{font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:600;margin-bottom:4px;}
+  .strategy-action{font:11px 'IBM Plex Mono',monospace;color:var(--slate-400);margin-bottom:16px;min-height:30px;}
+  .compare-value{font:24px 'IBM Plex Mono',monospace;color:var(--mist-100);line-height:1;}
+  .strategy-card.aqua .compare-value{color:var(--current-300);}
+  .compare-label{font-size:11px;color:var(--slate-400);text-transform:uppercase;letter-spacing:.06em;margin-top:5px;}
+  .compare-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px 10px;}
+  .evidence-table{margin-top:20px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--basin-900);}
+  .evidence-row{display:grid;grid-template-columns:1.35fr repeat(3,1fr);border-bottom:1px solid var(--line);}
+  .evidence-row:last-child{border-bottom:none;}
+  .evidence-row>div{padding:12px 14px;font-size:12.5px;border-right:1px solid var(--line);}
+  .evidence-row>div:last-child{border-right:none;}
+  .evidence-row.head{background:var(--basin-800);font:10.5px 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.07em;color:var(--slate-400);}
+  .evidence-row .metric-name{color:var(--slate-400);}
+  .evidence-row .winner{color:var(--current-300);font-family:'IBM Plex Mono',monospace;font-weight:600;}
+  .improvement-banner{margin-top:16px;padding:16px 18px;border:1px solid rgba(53,167,155,.45);background:rgba(53,167,155,.08);border-radius:12px;display:flex;gap:28px;flex-wrap:wrap;}
+  .improvement-item .n{font:20px 'IBM Plex Mono',monospace;color:var(--current-300);}
+  .improvement-item .l{font-size:11px;color:var(--slate-400);margin-top:4px;}
+  .model-note{margin-top:12px;font-size:11.5px;line-height:1.5;color:var(--slate-400);font-style:italic;}
+
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="wrap nav-inner">
+    <div class="brand"><span class="brand-mark"></span> AQUAGUARDIAN <span style="color:var(--slate-400);font-weight:400;">/ live engine, backend-connected</span></div>
+    <div class="conn-badge"><span class="conn-dot" id="connDot"></span><span id="connLabel">connecting…</span></div>
+  </div>
+  <div class="ticker-strip">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+</div>
+
+<div class="wrap hero">
+  <div class="hero-thesis">
+    <div class="old-way"><span>Detect → React</span></div>
+    <h1 class="new-way">Simulate. Compare.<br>Validate. Then act.</h1>
+    <p class="hero-sub">The browser renders a live engineering workflow streamed by FastAPI. Decision selection, stress profiles, comparative baselines, reliability and outcome metrics are generated by the included deterministic Python simulator — not typed into the presentation.</p>
+  </div>
+  <div class="hero-grid">
+    <div class="readout-card">
+      <div class="readout-title">Backend status</div>
+      <div class="readout-row"><span>Endpoint</span><b id="endpointLabel">/api/run/&lt;scenario&gt;</b></div>
+      <div class="readout-row"><span>Transport</span><b>Server-Sent Events</b></div>
+      <div class="readout-row"><span>Scenarios loaded</span><b id="scenarioCount">—</b></div>
+    </div>
+    <div class="readout-card">
+      <div class="readout-title">Closed-loop cycle</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--slate-400);line-height:2;">
+        sense → analyze → simulate<br>→ stress test → optimize<br>→ validate → <span style="color:var(--current-300);">execute</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap section">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">01 — run a scenario</div>
+      <div class="section-title">Pick an event from the field</div>
+    </div>
+    <div class="section-desc">The buttons below are populated from <code style="font-family:'IBM Plex Mono',monospace;">GET /api/scenarios</code>. Clicking one opens a live event stream from <code style="font-family:'IBM Plex Mono',monospace;">GET /api/run/&lt;id&gt;</code> — the browser receives the workflow and engine evidence from one backend.</div>
+  </div>
+  <div class="scenario-row" id="scenarioRow"><div class="idle-msg">Loading scenarios from backend…</div></div>
+
+  <div style="height:26px;"></div>
+
+  <div class="pipeline-panel">
+    <div class="pipeline-row" id="pipelineRow"></div>
+    <div class="retry-banner" id="retryBanner"><span class="mono">⟲</span> Stress test failed constraint — decision rejected, re-optimizing before re-testing</div>
+    <div class="stage-detail" id="stageDetail">
+      <div class="idle-msg">Waiting for the backend connection, then select a scenario to open a live stream.</div>
+    </div>
+    <button class="replay-btn" id="replayBtn" disabled>↻ Replay cycle</button>
+  </div>
+</div>
+
+<div class="wrap section" style="border-bottom:1px solid var(--line);">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">02 — validate the outcome</div>
+      <div class="section-title">Digital twin &amp; validation metrics</div>
+    </div>
+    <div class="section-desc">Metrics arrive in the final <code style="font-family:'IBM Plex Mono',monospace;">complete</code> event of the stream, once the backend's cycle actually reaches Execute.</div>
+  </div>
+  <div class="twin-metrics-grid">
+    <div class="panel">
+      <div class="panel-title">Living digital twin — network schematic</div>
+      <svg id="twinSvg" viewBox="0 0 690 300" style="width:100%;height:auto;"></svg>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Validation metrics</div>
+      <div id="metricsBody"></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="wrap section" id="comparisonSection">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">03 — prove the advantage</div>
+      <div class="section-title">Traditional response vs AquaGuardian</div>
+    </div>
+    <div class="section-desc">The same simulated fault is evaluated under the same four stress profiles. Values below come from the included deterministic backend, not hard-coded presentation numbers.</div>
+  </div>
+  <div id="comparisonBody"><div class="idle-msg">Run a water scenario to generate the same-screen engineering comparison.</div></div>
+  <button class="replay-btn" id="evidenceBtn" disabled>↓ Download scenario evidence (JSON)</button>
+</div>
+
+<div class="wrap section">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">04 — the hardware layer</div>
+      <div class="section-title">Live simulation, not a spec sheet</div>
+    </div>
+    <div class="section-desc">This panel calls <code style="font-family:'IBM Plex Mono',monospace;">GET /api/hardware/reflex</code>, which runs <code style="font-family:'IBM Plex Mono',monospace;">hexa_tpu_rt_sim</code> — a separate, independently built edge/network/MEC architecture simulator bundled in this repo — fresh, on request. These numbers are computed each time this page loads, not copied from a README.</div>
+  </div>
+  <div id="hardwareBody"><div class="idle-msg">Loading live hardware-layer simulation…</div></div>
+</div>
+
+<div class="wrap section">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">05 — beyond water</div>
+      <div class="section-title">Same cycle, industrial scale: Green Box</div>
+    </div>
+    <div class="section-desc">Green Box runs this Sense → Analyze → Simulate → Stress Test → Optimize → Validate → Execute cycle on industrial assets — engines, cranes, cell towers — as a self-powered edge node, then closes the loop by dispatching the spare part or technician itself.</div>
+  </div>
+  <div class="gb-stats-row">
+    <div class="gb-stat-card"><div class="big">$1.4T</div><div class="lbl">lost annually to unplanned downtime across manufacturing — 11% of global revenue</div></div>
+    <div class="gb-stat-card"><div class="big">$532K</div><div class="lbl">cost of a single hour of manufacturing downtime</div></div>
+    <div class="gb-stat-card"><div class="big">&lt;10ms</div><div class="lbl">edge decision latency target — validation happens on-asset, not in the cloud</div></div>
+    <div class="gb-stat-card"><div class="big">60%</div><div class="lbl">of maritime incidents traced to equipment failure that could have been predicted</div></div>
+    <div class="gb-stat-card"><div class="big">$64B</div><div class="lbl">projected size of the predictive-maintenance market by 2030</div></div>
+    <div class="gb-stat-card"><div class="big">95%</div><div class="lbl">of cell towers failed after Hurricane Maria — the case for off-grid, solar-powered nodes</div></div>
+  </div>
+  <p class="gb-note">The <b>industrial scenario</b> in the run-a-scenario panel above (Green Box · Aviation) shows the same validation discipline applied off-planet from water: an engine-mounted edge node predicts a bearing failure, a first response plan is <b>rejected</b> for violating an airport's ATC geofence, and only the re-optimized plan — a standardized oneM2M request over existing SATCOM, timed drone dispatch from the spare-parts warehouse — reaches execution. One engineering philosophy, two very different physical systems.</p>
+</div>
+
+<div class="wrap section" style="border-bottom:1px solid var(--line);">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow" style="margin-bottom:8px;">06 — where it deploys</div>
+      <div class="section-title">One architecture, many networks</div>
+    </div>
+  </div>
+  <div class="usecase-row">
+    <div class="usecase">Smart farms</div>
+    <div class="usecase">Forests</div>
+    <div class="usecase">Treatment plants</div>
+    <div class="usecase">Pipelines</div>
+    <div class="usecase">Reservoirs &amp; dams</div>
+    <div class="usecase">Municipal networks</div>
+  </div>
+  <div class="philosophy">
+    <p>"No engineering decision should be executed before it has been simulated, analyzed, optimized, stress-tested, and validated."</p>
+    <div class="attr">— AquaGuardian AI engineering philosophy</div>
+  </div>
+</div>
+
+<footer class="wrap">
+
+  <div>AquaGuardian AI — Backend-Connected Closed-Loop Engine</div>
+  <div>FastAPI · Server-Sent Events · same cycle as the standalone demo</div>
+</footer>
+
+<script>
+const API_BASE = ""; // same origin — FastAPI serves this file and the API
+
+const STAGES = [
+  {id:'sense', label:'Sense'},
+  {id:'analyze', label:'Analyze'},
+  {id:'simulate', label:'Simulate'},
+  {id:'stress_test', label:'Stress Test'},
+  {id:'optimize', label:'Optimize'},
+  {id:'validate', label:'Validate'},
+  {id:'execute', label:'Execute'},
+];
+
+const tickerItems = [
+  "MAIN-4 PRESSURE <b>2.31 bar</b>", "GROVE-7 SOIL <b>11.2%</b>", "SECTOR-2 CANOPY BIO-SIGNAL <b>stable</b>",
+  "PUMP-B BEARING <b>71.4°C</b>", "RESERVOIR LEVEL <b>82%</b>", "WIND VECTOR <b>14 km/h NE</b>",
+  "ENGINE NPU <b>7.5ms edge decision</b>", "EDGE AI <b>local inference · 0 cloud calls</b>",
+];
+document.getElementById('ticker').innerHTML = tickerItems.map(t=>`<span>${t}</span>`).join('') + tickerItems.map(t=>`<span>${t}</span>`).join('');
+
+const connDot = document.getElementById('connDot');
+const connLabel = document.getElementById('connLabel');
+const scenarioRow = document.getElementById('scenarioRow');
+const pipelineRow = document.getElementById('pipelineRow');
+const stageDetail = document.getElementById('stageDetail');
+const retryBanner = document.getElementById('retryBanner');
+const metricsBody = document.getElementById('metricsBody');
+const replayBtn = document.getElementById('replayBtn');
+const twinSvg = document.getElementById('twinSvg');
+const comparisonBody = document.getElementById('comparisonBody');
+const evidenceBtn = document.getElementById('evidenceBtn');
+
+let scenarios = [];
+let currentEventSource = null;
+let running = false;
+
+function renderPipelineSkeleton(){
+  pipelineRow.innerHTML = STAGES.map((s,i)=>`
+    <div class="stage" id="stage-${s.id}">
+      <div class="stage-node">${String(i+1).padStart(2,'0')}</div>
+      <div class="stage-label">${s.label}</div>
+    </div>
+    ${i < STAGES.length-1 ? '<div class="stage-connector" id="conn-'+i+'"></div>' : ''}
+  `).join('');
+}
+renderPipelineSkeleton();
+
+function resetPipelineVisual(){
+  STAGES.forEach((s,i)=>{
+    const el = document.getElementById('stage-'+s.id);
+    el.classList.remove('done','active','failed');
+    if(i < STAGES.length-1) document.getElementById('conn-'+i).classList.remove('done');
+  });
+  retryBanner.classList.remove('show');
+}
+
+function renderTwin(focusIds){
+  focusIds = focusIds || [];
+  const nodes = [
+    {id:'reservoir', x:40, y:60, label:'Reservoir'}, {id:'pumpA', x:150, y:40, label:'Pump A'},
+    {id:'pumpB', x:150, y:100, label:'Pump B'}, {id:'pumpC', x:150, y:160, label:'Pump C'},
+    {id:'valve4a', x:270, y:60, label:'Valve 4A'}, {id:'valve7', x:270, y:120, label:'Valve 7'},
+    {id:'valve12', x:340, y:160, label:'Valve 12'}, {id:'pipe4', x:340, y:60, label:'Main 4'},
+    {id:'grove7', x:440, y:60, label:'Grove 7'}, {id:'sprinkler7', x:440, y:100, label:'Sprinklers'},
+    {id:'forest2', x:440, y:180, label:'Forest S2'}, {id:'drone1', x:510, y:150, label:'Drone 1'},
+    {id:'drone2', x:510, y:210, label:'Drone 2'}, {id:'engine', x:625, y:40, label:'Engine NPU'},
+    {id:'groundCSE', x:625, y:100, label:'Ground CSE'}, {id:'warehouse', x:625, y:160, label:'Warehouse'},
+    {id:'drone3', x:625, y:220, label:'Drone 3'},
+  ];
+  const edges = [
+    ['reservoir','pumpA'],['reservoir','pumpB'],['reservoir','pumpC'],
+    ['pumpB','valve4a'],['pumpB','valve7'],['valve4a','pipe4'],['valve7','valve12'],
+    ['pipe4','grove7'],['grove7','sprinkler7'],['valve12','sprinkler7'],
+    ['sprinkler7','forest2'],['forest2','drone1'],['forest2','drone2'],
+    ['engine','groundCSE'],['groundCSE','warehouse'],['warehouse','drone3'],
+  ];
+  const pos = {}; nodes.forEach(n=>pos[n.id]=n);
+  let svg = '';
+  edges.forEach(([a,b])=>{
+    const A=pos[a], B=pos[b];
+    const activeEdge = focusIds.includes(a) && focusIds.includes(b);
+    svg += `<line x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}" stroke="${activeEdge?'#35A79B':'#1E4048'}" stroke-width="${activeEdge?2.4:1.4}" />`;
+  });
+  nodes.forEach(n=>{
+    const active = focusIds.includes(n.id);
+    svg += `<circle cx="${n.x}" cy="${n.y}" r="${active?11:8}" fill="${active?'#173840':'#0F272E'}" stroke="${active?'#35A79B':'#1E4048'}" stroke-width="${active?2.2:1.4}" />`;
+    if(active){ svg += `<circle cx="${n.x}" cy="${n.y}" r="16" fill="none" stroke="#35A79B" stroke-width="1" opacity="0.35"><animate attributeName="r" values="11;19;11" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="1.6s" repeatCount="indefinite"/></circle>`; }
+    svg += `<text x="${n.x}" y="${n.y+24}" font-family="IBM Plex Mono, monospace" font-size="9.5" fill="${active?'#8FD8CC':'#7E9C99'}" text-anchor="middle">${n.label}</text>`;
+  });
+  twinSvg.innerHTML = svg;
+}
+renderTwin([]);
+
+function renderMetricsSkeleton(){
+  metricsBody.innerHTML = '<div class="idle-msg">Metrics arrive when the backend stream completes.</div>';
+}
+function fillMetrics(metrics){
+  metricsBody.innerHTML = metrics.map((m,i)=>`
+    <div class="metric">
+      <div class="metric-top"><span>${m.label}</span><span class="metric-num" id="mnum-${i}">${m.value}${m.unit?' '+m.unit:''}</span></div>
+      <div class="bar-track"><div class="bar-fill" id="mbar-${i}" style="width:0%"></div></div>
+    </div>
+  `).join('');
+  metrics.forEach((m,i)=>{
+    const pct = Math.min(100,(m.value/m.max)*100);
+    requestAnimationFrame(()=>{ document.getElementById('mbar-'+i).style.width = pct+'%'; });
+  });
+}
+
+function showDetail(stageId, detail, note){
+  const stageLabel = STAGES.find(s=>s.id===stageId).label;
+  stageDetail.innerHTML = `
+    <div class="k">${stageLabel}${note ? ' · '+note : ''}</div>
+    <div class="v">${detail.text}</div>
+    <div class="telemetry">${detail.telemetry.map(([k,v])=>`<div><span>${k}</span>${v}</div>`).join('')}</div>
+  `;
+}
+
+function setActiveButton(id){
+  document.querySelectorAll('.scenario-btn').forEach(b=> b.classList.toggle('active', b.dataset.id===id));
+}
+
+
+function strategyLabel(name){
+  return ({reactive_baseline:'Traditional reactive', detection_only_ai:'Detection-only AI', aquaguardian_closed_loop:'AquaGuardian closed loop'})[name] || name;
+}
+function fmt(value, digits=1){
+  const n=Number(value); return Number.isFinite(n) ? n.toFixed(digits).replace(/\.0$/,'') : '—';
+}
+function renderComparison(comp){
+  if(!comp || !comp.strategies){
+    comparisonBody.innerHTML='<div class="idle-msg">This visual scenario has no mapped water-engine comparison yet.</div>'; return;
+  }
+  const order=['reactive_baseline','detection_only_ai','aquaguardian_closed_loop'];
+  const byName=Object.fromEntries(comp.strategies.map(x=>[x.strategy,x]));
+  const cards=order.map(name=>{
+    const x=byName[name]; if(!x) return '';
+    return `<div class="strategy-card ${name==='aquaguardian_closed_loop'?'aqua':''}">
+      <div class="strategy-name">${strategyLabel(name)}</div>
+      <div class="strategy-action">Action: ${x.selected_action.replaceAll('_',' ')}</div>
+      <div class="compare-mini-grid">
+        <div><div class="compare-value">${fmt(x.detection_delay_s,2)}s</div><div class="compare-label">Response delay</div></div>
+        <div><div class="compare-value">${fmt(x.stress_pass_rate*100)}%</div><div class="compare-label">Stress pass rate</div></div>
+        <div><div class="compare-value">${fmt(x.mean_water_loss_l)}L</div><div class="compare-label">Mean water loss</div></div>
+        <div><div class="compare-value">${fmt(x.mean_service_disruption_min)}m</div><div class="compare-label">Service disruption</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  const rows=[
+    ['Response delay', x=>fmt(x.detection_delay_s,2)+' s', 'min'],
+    ['Stress-test pass rate', x=>fmt(x.stress_pass_rate*100)+'%', 'max'],
+    ['Mean water loss', x=>fmt(x.mean_water_loss_l)+' L', 'min'],
+    ['Mean safety risk', x=>fmt(x.mean_safety_risk,3), 'min'],
+  ];
+  const table=rows.map(([label,formatter,mode])=>{
+    const vals=order.map(n=>byName[n]);
+    const nums=vals.map(x=> label==='Response delay'?x.detection_delay_s:label==='Stress-test pass rate'?x.stress_pass_rate:label==='Mean water loss'?x.mean_water_loss_l:x.mean_safety_risk);
+    const best=mode==='min'?Math.min(...nums):Math.max(...nums);
+    return `<div class="evidence-row"><div class="metric-name">${label}</div>${vals.map((x,i)=>`<div class="${nums[i]===best?'winner':''}">${formatter(x)}</div>`).join('')}</div>`;
+  }).join('');
+  const imp=comp.improvements||{};
+  comparisonBody.innerHTML=`<div class="comparison-grid">${cards}</div>
+    <div class="improvement-banner">
+      <div class="improvement-item"><div class="n">${fmt(imp.water_loss_reduction_pct_vs_reactive)}%</div><div class="l">less modeled water loss vs reactive</div></div>
+      <div class="improvement-item"><div class="n">${fmt(imp.response_time_reduction_pct_vs_reactive)}%</div><div class="l">faster modeled response</div></div>
+      <div class="improvement-item"><div class="n">+${fmt((imp.stress_pass_rate_gain_vs_reactive||0)*100)} pp</div><div class="l">stress-pass-rate gain</div></div>
+    </div>
+    <div class="evidence-table"><div class="evidence-row head"><div>Metric</div><div>Reactive</div><div>Detection AI</div><div>AquaGuardian</div></div>${table}</div>
+    <div class="model-note">${comp.model_note}</div>`;
+}
+
+function runScenario(id){
+  if(running) return;
+  running = true;
+  replayBtn.disabled = true;
+  evidenceBtn.disabled = true;
+  evidenceBtn.dataset.current = id;
+  setActiveButton(id);
+  resetPipelineVisual();
+  renderMetricsSkeleton();
+  const meta = scenarios.find(s=>s.id===id);
+  renderTwin(meta ? meta.twinFocus : []);
+  stageDetail.innerHTML = '<div class="idle-msg">Opening stream to backend…</div>';
+  comparisonBody.innerHTML = '<div class="idle-msg">Running all three strategies under identical stress profiles…</div>';
+
+  if(currentEventSource) currentEventSource.close();
+  const es = new EventSource(`${API_BASE}/api/run/${id}`);
+  currentEventSource = es;
+
+  es.addEventListener('engine_evidence', (e)=>{
+    const d = JSON.parse(e.data);
+    renderComparison(d.comparison);
+  });
+  es.addEventListener('stage_start', (e)=>{
+    const d = JSON.parse(e.data);
+    document.getElementById('stage-'+d.stage).classList.add('active');
+    showDetail(d.stage, d);
+  });
+  es.addEventListener('stress_fail', ()=>{
+    document.getElementById('stage-stress_test').classList.remove('active');
+    document.getElementById('stage-stress_test').classList.add('failed');
+    retryBanner.classList.add('show');
+  });
+  es.addEventListener('reoptimize_start', (e)=>{
+    const d = JSON.parse(e.data);
+    retryBanner.classList.remove('show');
+    document.getElementById('stage-stress_test').classList.remove('failed');
+    document.getElementById('stage-optimize').classList.remove('done');
+    document.getElementById('stage-optimize').classList.add('active');
+    showDetail('optimize', d, 're-run after stress-test failure');
+  });
+  es.addEventListener('reoptimize_done', ()=>{
+    document.getElementById('stage-optimize').classList.remove('active');
+    document.getElementById('stage-optimize').classList.add('done');
+  });
+  es.addEventListener('stress_retry_start', (e)=>{
+    const d = JSON.parse(e.data);
+    document.getElementById('stage-stress_test').classList.add('active');
+    showDetail('stress_test', d, 're-run after re-optimization');
+  });
+  es.addEventListener('stage_done', (e)=>{
+    const d = JSON.parse(e.data);
+    const idx = STAGES.findIndex(s=>s.id===d.stage);
+    const el = document.getElementById('stage-'+d.stage);
+    el.classList.remove('active');
+    el.classList.add('done');
+    if(idx < STAGES.length-1) document.getElementById('conn-'+idx).classList.add('done');
+  });
+  es.addEventListener('complete', (e)=>{
+    const d = JSON.parse(e.data);
+    fillMetrics(d.metrics);
+    es.close();
+    running = false;
+    replayBtn.disabled = false;
+    replayBtn.dataset.current = id;
+    evidenceBtn.disabled = !(d.comparison);
+  });
+  es.addEventListener('error', ()=>{
+    stageDetail.innerHTML = '<div class="idle-msg">Stream ended unexpectedly — check that the FastAPI server is still running, then replay.</div>';
+    es.close();
+    running = false;
+    replayBtn.disabled = false;
+  });
+}
+
+replayBtn.addEventListener('click', ()=>{
+  if(replayBtn.dataset.current) runScenario(replayBtn.dataset.current);
+});
+
+evidenceBtn.addEventListener('click', async ()=>{
+  const id=evidenceBtn.dataset.current; if(!id) return;
+  const res=await fetch(`${API_BASE}/api/evidence/${id}`);
+  if(!res.ok) return;
+  const blob=new Blob([JSON.stringify(await res.json(), null, 2)], {type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`aquaguardian-${id}-evidence.json`; a.click();
+  URL.revokeObjectURL(url);
+});
+
+async function loadHardwareBenchmark(){
+  const hwBody = document.getElementById('hardwareBody');
+  if(!hwBody) return;
+  try{
+    const res = await fetch(`${API_BASE}/api/hardware/reflex`);
+    if(!res.ok) throw new Error('bad response');
+    const d = await res.json();
+    const r = d.reflex_layer, n = d.network_layer, m = d.mec_cognitive_layer, o = d.onem2m_layer;
+    hwBody.innerHTML = `
+      <div class="hw-grid">
+        <div class="hw-card">
+          <div class="hw-title">Reflex kernel · water-hammer trigger</div>
+          <div class="hw-row"><span>Samples evaluated</span><b>${r.samples}</b></div>
+          <div class="hw-row"><span>Max decision latency</span><b>${(r.max_latency_ms*1000).toFixed(3)} µs</b></div>
+          <div class="hw-row"><span>Deadline</span><b>${r.deadline_ms} ms</b></div>
+          <div class="hw-row"><span>Deadline misses</span><b>${r.deadline_misses}</b></div>
+          <div class="hw-row"><span>Burst detected vs ground truth</span><b>${r.detected_bursts} / ${r.ground_truth_bursts}</b></div>
+        </div>
+        <div class="hw-card">
+          <div class="hw-title">Edge → MEC network · 5G URLLC model</div>
+          <div class="hw-row"><span>Samples transmitted</span><b>${n.samples}</b></div>
+          <div class="hw-row"><span>Mean latency</span><b>${n.mean_latency_ms} ms</b></div>
+          <div class="hw-row"><span>p99 latency</span><b>${n.p99_latency_ms} ms</b></div>
+          <div class="hw-row"><span>SLA (${n.sla_target_ms}ms) met rate</span><b>${(n.sla_met_rate*100).toFixed(1)}%</b></div>
+          <div class="hw-row"><span>Reflex vs. network SLA</span><b>${d.reflex_vs_network_ratio.toLocaleString()}× faster</b></div>
+        </div>
+        <div class="hw-card">
+          <div class="hw-title">MEC cognitive layer · worsening leak (severity 0.8)</div>
+          <div class="hw-row"><span>Remaining useful life</span><b>${m.remaining_useful_life_windows} windows</b></div>
+          <div class="hw-row"><span>Trend slope</span><b>${m.trend_slope_kpa_per_window} kPa/window</b></div>
+          <div class="hw-row"><span>Vetoed action</span><b>${m.vetoed_actions.join(', ') || 'none'}</b></div>
+          <div class="hw-row"><span>Chosen action</span><b>${m.chosen_action}</b></div>
+        </div>
+        <div class="hw-card">
+          <div class="hw-title">oneM2M middleware · water edge node</div>
+          <div class="hw-row"><span>AE registration</span><b>${o.ae_registration_ok ? 'OK' : 'failed'} (${o.ae_registration_status_code})</b></div>
+          <div class="hw-row"><span>Assigned AE-ID</span><b>${o.assigned_ae_id}</b></div>
+          <div class="hw-row"><span>Reflex events pushed (CREATE)</span><b>${o.reflex_events_pushed_via_create}</b></div>
+          <div class="hw-row"><span>RETRIEVE round-trip</span><b>${o.retrieve_ok ? 'OK' : 'failed'} (${o.retrieve_status_code})</b></div>
+          <div class="hw-row"><span>CSE requests logged</span><b>${o.cse_request_log_length}</b></div>
+        </div>
+      </div>
+      <div class="hw-note">${d.model_note} Bat Forecaster / Squid Controller classes are reused unmodified from the platform's aviation domain: <span class="mono">${m.bat_forecaster_class}</span>, <span class="mono">${m.squid_controller_class}</span>. ${o.note}</div>
+    `;
+  }catch(err){
+    hwBody.innerHTML = '<div class="idle-msg">Could not reach /api/hardware/reflex — hexa_tpu_rt_sim may not be bundled or importable in this deployment.</div>';
+  }
+}
+
+async function init(){
+  try{
+    const res = await fetch(`${API_BASE}/api/scenarios`);
+    if(!res.ok) throw new Error('bad response');
+    scenarios = await res.json();
+    connDot.className = 'conn-dot live';
+    connLabel.textContent = 'connected';
+    document.getElementById('scenarioCount').textContent = scenarios.length;
+
+    scenarioRow.innerHTML = '';
+    scenarios.forEach(s=>{
+      const btn = document.createElement('button');
+      btn.className = 'scenario-btn';
+      btn.dataset.kind = s.kind;
+      btn.dataset.id = s.id;
+      btn.innerHTML = `<div class="tag">${s.tag}</div><div class="name">${s.name}</div><div class="loc">${s.loc}</div>`;
+      btn.addEventListener('click', ()=> runScenario(s.id));
+      scenarioRow.appendChild(btn);
+    });
+  }catch(err){
+    connDot.className = 'conn-dot down';
+    connLabel.textContent = 'backend unreachable';
+    scenarioRow.innerHTML = '<div class="idle-msg">Could not reach the FastAPI backend at '+API_BASE+'/api/scenarios. Make sure it is running (see README) and reload this page.</div>';
+  }
+}
+init();
+loadHardwareBenchmark();
+</script>
+</body>
+</html>
